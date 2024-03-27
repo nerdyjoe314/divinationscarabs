@@ -1,10 +1,9 @@
-def offset(n: int, offsets):
-	out = n
-	for i in offsets:
-		if n>i:
-			out+=1
-	return out
+import json
+import subprocess
+import os
+import time
 
+start_time = time.time()
 maps = [
   "ForbiddenWoods",
   "ColdRiver",
@@ -125,140 +124,39 @@ maps = [
   "Wasteland",
 ]
 
-removes =[
-  "The Easy Stroll",
-  "The Lunaris Priestess",
-  "The Explorer",
-  "The Mountain",
-  "Boundless Realms",
-  "Azure Rage",
-  "Left to Fate",
-  "Might is Right",
-  "Scholar of the Seas",
-  "Grave Knowledge",
-  "The Wolverine",
-  "Blind Venture",
-  "Hunter's Resolve",
-  "Alivia's Grace",
-  "The Admirer",
-  "The Surgeon",
-  "The Wolf's Shadow",
-  "Shard of Fate",
-  "Jack in the Box",
-  "Last Hope",
-  "Mitts",
-  "The Battle Born",
-  "The Sun",
-  "The Demoness",
-  "The Sigil",
-  "The Twins",
-  "The Inoculated",
-  "The Army of Blood",
-  "The Visionary",
-  "The Gladiator",
-  "Gemcutter's Promise",
-  "The Web",
-  "The Sword King's Salute",
-  "Boon of Justice",
-  "The Penitent",
-  "The Warden",
-  "The Cache",
-  "Lysah's Respite",
-  "The Fathomless Depths",
-  "The Harvester",
-  "The Fox",
-  "Volatile Power",
-  "The Endurance",
-  "The Wolf",
-  "Time-Lost Relic",
-  "The Rite of Elements",
-  "Gift of the Gemling Queen",
-  "The Standoff",
-  "Prosperity",
-  "Heterochromia",
-  "The Insatiable",
-  "The Incantation",
-  "The Betrayal",
-  "The Pack Leader",
-  "The Oath",
-  "Vile Power",
-  "The Surveyor",
-  "Thunderous Skies",
-  "The Tower",
-  "The Stormcaller",
-  "The Opulent",
-  "The Blazing Fire",
-  "The Journalist",
-  "The Jeweller's Boon",
-  "The Survivalist",
-  "Glimmer of Hope",
-  "Destined to Crumble",
-  "The Scholar",
-  "Thirst for Knowledge",
-  "Rain of Chaos",
-  "Emperor's Luck",
-  "Loyalty",
-  "A Sea of Blue",
-  "The Lover",
-  "The King's Blade",
-  "The Catalyst",
-  "Lantador's Lost Love",
-  "The Scarred Meadow",
-  "Rats",
-  "The Witch",
-  "Three Voices",
-]
-
-
-
-
-f = open("prices.txt", 'r')
-split= f.readlines()
-f.close()
-offsets = [30,31]
-name_array = []
-price_array = []
-weight_array = []
-stack_array = []
-old_row_id = 0
-map_label = [[0 for _ in range(428)] for _ in range(len(maps))]
-for row_id in range(len(split)):
-	for map_id in range(len(maps)):
-		if "MapWorlds"+maps[map_id] in split[row_id]:
-			map_label[map_id][old_row_id] = 1
-	if "name: " in split[row_id]:
-		name_array.append(split[row_id][11:-3])
-		old_row_id+=1
-	if "price:" in split[row_id]:
-		price_array.append(float(split[row_id][10:-2]))
-	if "weight: " in split[row_id]:
-		weight_array.append(int(split[row_id][12:-2]))
-	if "stack: " in split[row_id]:
-		stack_array.append(int(split[row_id][10:-2]))
+with open("prices.json", 'r') as f:
+	data = json.load(f)
+# print(len(data))
 
 t_name_array = []
 t_price_array = []
 t_weight_array = []
 t_stack_array = []
-for card_id in range(len(name_array)):
-	if name_array[card_id] not in removes:
-		t_name_array.append(name_array[card_id])
-		t_price_array.append(price_array[card_id])
-		t_weight_array.append(weight_array[card_id])
-		t_stack_array.append(stack_array[card_id])
+t_map_label =[[0 for _ in range(len(data))] for _ in range(len(maps))]
 
-t_map_label = [[0 for _ in range(428)] for _ in range(len(maps))]
-for map_id in range(len(maps)):
-	card_index=0
-	for card_id in range(len(name_array)):
-		if name_array[card_id] not in removes:
-			t_map_label[map_id][card_index] = map_label[map_id][card_id]
-			card_index+=1
+# print(data[0])
 
-print(len(t_name_array))
-print(len(t_price_array))
-print(len(t_weight_array))
-print(len(t_stack_array))
+for i in range(len(data)):
+	t_name_array.append(data[i]['name'])
+	t_price_array.append(data[i]['price'])
+	t_stack_array.append(data[i]['stack'])
+	try:
+		t_weight_array.append(data[i]['weight'])
+	except KeyError:
+		t_weight_array.append(0)
+	try:
+		areas = data[i]['drop']['areas']
+		for map_id in range(len(maps)):
+			if "MapWorlds"+maps[map_id] in areas:
+				t_map_label[map_id][i] = 1
+	except KeyError:
+		pass
+
+
+# print(len(t_name_array))
+# print(len(t_price_array))
+# print(len(t_weight_array))
+# print(len(t_stack_array))
 
 #variables are cards and maps
 # optimization is ev of cards dot cards
@@ -322,3 +220,32 @@ for map_id in range(len(maps)):
 			stack_ev += t_price_array[card_id] * t_weight_array[card_id] * 0.8 + t_stack_array[card_id] * t_price_array[card_id] * t_weight_array[card_id] * 0.2 
 	out.write(str(map_id)+", "+maps[map_id]+", "+str(ev)+", "+str(stack_ev)+"\n")
 out.close()
+
+# run the integer program
+subprocess.run(["scip","-f","E:\Documents\POE\StackedDecks\DivCard.lp",
+                "-q","-l","DivCard.out"])
+
+# open and read the outfile into memory
+logfile=open("DivCard.out","r")
+lines = logfile.readlines()
+
+# parse the output
+findtext = "primal solution (original space):"
+for i in range(len(lines)):
+	if findtext in lines[i]:
+		break
+
+startline=i
+
+findtext = "Statistics"
+for i in range(len(lines)):
+	if findtext in lines[i]:
+		break
+
+endline = i
+
+for i in range(startline+1,endline):
+	if 'm' in lines[i]:
+		print(maps[int(lines[i][1:4])])
+
+print(time.time()-start_time)
