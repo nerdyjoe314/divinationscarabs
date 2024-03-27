@@ -224,6 +224,10 @@ for map_id in range(len(maps)):
 	out.write(str(map_id)+", "+maps[map_id]+", "+str(ev)+", "+str(stack_ev)+"\n")
 out.close()
 
+# remove old DivCard.out if it exists
+if os.path.exists("DivCard.out"):
+    os.remove("DivCard.out")
+
 # run the integer program
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
