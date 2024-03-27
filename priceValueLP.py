@@ -182,7 +182,7 @@ out.write("Subject To\n")
 map_count_string = "map_count: "
 for map_index in range(len(maps)):
 	map_count_string += "m"+str(map_index)+" + "
-out.write(map_count_string+"0 <= 12\n")
+out.write(map_count_string[:-3]+" <= 12\n")
 
 # constraint, for each card, it's inclusion has to be less than or equal to the sum of the maps it's in
 for card_id in range(len(t_name_array)):
