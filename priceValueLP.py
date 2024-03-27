@@ -2,6 +2,9 @@ import json
 import subprocess
 import os
 import time
+from cleanUpPrices import prepare_card_data
+
+prepare_card_data()
 
 start_time = time.time()
 maps = [
