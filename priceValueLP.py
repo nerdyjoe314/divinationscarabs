@@ -222,8 +222,9 @@ for map_id in range(len(maps)):
 out.close()
 
 # run the integer program
-subprocess.run(["scip","-f","E:\Documents\POE\StackedDecks\DivCard.lp",
-                "-q","-l","DivCard.out"])
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+subprocess.run(["scip","-f","DivCard.lp","-q","-l","DivCard.out"])
 
 # open and read the outfile into memory
 logfile=open("DivCard.out","r")
