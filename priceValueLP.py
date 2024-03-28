@@ -4,6 +4,8 @@ import os
 import time
 from cleanUpPrices import prepare_card_data
 
+click_threshold = 10
+
 prepare_card_data()
 
 start_time = time.time()
@@ -176,7 +178,11 @@ out = open("DivCard.lp", 'w')
 out.write("Maximize\n")
 objective_string=" obj: "
 for card_id in range(len(t_name_array)):
-	ev = t_price_array[card_id] * t_weight_array[card_id] * 0.8 + t_stack_array[card_id] * t_price_array[card_id] * t_weight_array[card_id] * 0.2 
+	ev = 0
+	if t_price_array[card_id] > click_threshold:
+		ev += t_price_array[card_id] * t_weight_array[card_id] * 0.8 
+	if t_stack_array[card_id] * t_price_array[card_id] > click_threshold:
+		ev += t_stack_array[card_id] * t_price_array[card_id] * t_weight_array[card_id] * 0.2 
 	objective_string += str(ev) + " c"+str(card_id)+" + "
 out.write(objective_string+'0\n')
 out.write("Subject To\n")
