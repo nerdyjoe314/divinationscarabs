@@ -1,15 +1,11 @@
 import json
 from pathlib import Path
 
-# Union Weight as fallback
-DEFAULT_WEIGHT = 4987
-PRICE_FLOOR = 6
-
 cardData = './data/cards.json'
 cardPriceOverrides = './data/overrides.json'
 
-def prepare_card_data():
-    global DEFAULT_WEIGHT, PRICE_FLOOR, cardData, cardPriceOverrides
+def prepare_card_data(DEFAULT_WEIGHT, PRICE_FLOOR):
+    global cardData, cardPriceOverrides
     
     with open(cardData, 'r') as file:
         allCards = json.load(file)

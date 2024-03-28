@@ -4,9 +4,11 @@ import os
 import time
 from cleanUpPrices import prepare_card_data
 
-click_threshold = 10
+DEFAULT_WEIGHT = 4987
+PRICE_FLOOR = 6
+CLICK_THRESHOLD = 10
 
-prepare_card_data()
+prepare_card_data(DEFAULT_WEIGHT, PRICE_FLOOR)
 
 start_time = time.time()
 maps = [
@@ -179,9 +181,9 @@ out.write("Maximize\n")
 objective_string=" obj: "
 for card_id in range(len(t_name_array)):
 	ev = 0
-	if t_price_array[card_id] >= click_threshold:
+	if t_price_array[card_id] >= CLICK_THRESHOLD:
 		ev += t_price_array[card_id] * t_weight_array[card_id] * 0.8 
-	if t_stack_array[card_id] * t_price_array[card_id] >= click_threshold:
+	if t_stack_array[card_id] * t_price_array[card_id] >= CLICK_THRESHOLD:
 		ev += t_stack_array[card_id] * t_price_array[card_id] * t_weight_array[card_id] * 0.2 
 	objective_string += str(ev) + " c"+str(card_id)+" + "
 out.write(objective_string+'0\n')
