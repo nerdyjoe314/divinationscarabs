@@ -4,14 +4,17 @@ import os
 import time
 from cleanUpPrices import prepare_card_data
 
-DEFAULT_WEIGHT = 4987
-PRICE_FLOOR = 6
-CLICK_THRESHOLD = 10
+DEFAULT_WEIGHT = 0
+PRICE_FLOOR = 4
+CLICK_THRESHOLD = 4
 BENCHMARK_CARD = "The Union"
 BENCHMARK_DROPPED = 47
 FAVORITE_MAPS = 12
+USE_FULL_STACK = True
+#USE_FULL_STACK = False
 
 prepare_card_data(DEFAULT_WEIGHT, PRICE_FLOOR)
+
 
 start_time = time.time()
 maps = [
@@ -167,10 +170,14 @@ out.write("Maximize\n")
 objective_string=" obj: "
 for card_id in range(len(t_name_array)):
 	ev = 0
-	if t_price_array[card_id] >= CLICK_THRESHOLD:
-		ev += t_price_array[card_id] * t_weight_array[card_id] * 0.8 
-	if t_stack_array[card_id] * t_price_array[card_id] >= CLICK_THRESHOLD:
-		ev += t_stack_array[card_id] * t_price_array[card_id] * t_weight_array[card_id] * 0.2 
+	if USE_FULL_STACK:
+		if t_price_array[card_id] >= CLICK_THRESHOLD:
+			ev += t_price_array[card_id] * t_weight_array[card_id] * 0.8
+		if t_stack_array[card_id] * t_price_array[card_id] >= CLICK_THRESHOLD:
+			ev += t_stack_array[card_id] * t_price_array[card_id] * t_weight_array[card_id] * 0.2
+	else:
+		if t_price_array[card_id] >= CLICK_THRESHOLD:
+			ev += t_price_array[card_id] * t_weight_array[card_id]
 	objective_string += str(ev) + " c"+str(card_id)+" + "
 out.write(objective_string+'0\n')
 out.write("Subject To\n")
@@ -258,8 +265,23 @@ for i in range(len(lines)):
 
 endline = i
 
+used_map_ids = []
+used_card_ids = []
+
 for i in range(startline+1,endline):
+	if 'c' == lines[i][0]:
+		used_card_ids.append(int(lines[i][1:4]))
 	if 'm' in lines[i]:
 		print(maps[int(lines[i][1:4])])
+		used_map_ids.append(int(lines[i][1:4]))
+	if 'objective value' in lines[i]:
+		print("value = ",lines[i][-13:-1])
 
-print(time.time()-start_time)
+#print(used_card_ids)
+#print(used_map_ids)
+total_stacks = 0
+for card_id in used_card_ids:
+	total_stacks += int(card_count_constant*t_weight_array[card_id]/t_stack_array[card_id])+1
+print("Used", str(total_stacks), "total stacks out of 360")
+
+print("time: ",time.time()-start_time)
