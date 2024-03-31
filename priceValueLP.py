@@ -8,7 +8,7 @@ DEFAULT_WEIGHT = 0
 PRICE_FLOOR = 4
 CLICK_THRESHOLD = 4
 BENCHMARK_CARD = "The Union"
-BENCHMARK_DROPPED = 47
+BENCHMARK_DROPPED = 144
 FAVORITE_MAPS = 12
 USE_FULL_STACK = True
 #USE_FULL_STACK = False
@@ -124,6 +124,9 @@ with open("prices.json", 'r') as f:
 	data = json.load(f)
 # print(len(data))
 
+with open("realWeights.json",'r') as f:
+	weights = json.load(f)
+
 t_name_array = []
 t_price_array = []
 t_weight_array = []
@@ -136,10 +139,10 @@ for i in range(len(data)):
 	t_name_array.append(data[i]['name'])
 	t_price_array.append(data[i]['price'])
 	t_stack_array.append(data[i]['stack'])
-	try:
-		t_weight_array.append(data[i]['weight'])
-	except KeyError:
-		t_weight_array.append(0)
+	#try:
+	#	t_weight_array.append(data[i]['weight'])
+	#except KeyError:
+	#	t_weight_array.append(0)
 	try:
 		areas = data[i]['drop']['areas']
 		for map_id in range(len(maps)):
@@ -147,6 +150,9 @@ for i in range(len(data)):
 				t_map_label[map_id][i] = 1
 	except KeyError:
 		pass
+
+for i in range(len(data)):
+	t_weight_array.append(weights[0][t_name_array[i]])
 
 
 # print(len(t_name_array))
