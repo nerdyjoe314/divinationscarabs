@@ -7,6 +7,9 @@ from cleanUpPrices import prepare_card_data
 DEFAULT_WEIGHT = 4987
 PRICE_FLOOR = 6
 CLICK_THRESHOLD = 10
+BENCHMARK_CARD = "The Union"
+BENCHMARK_DROPPED = 47
+FAVORITE_MAPS = 12
 
 prepare_card_data(DEFAULT_WEIGHT, PRICE_FLOOR)
 
@@ -176,7 +179,7 @@ out.write("Subject To\n")
 map_count_string = "map_count: "
 for map_index in range(len(maps)):
 	map_count_string += "m"+str(map_index)+" + "
-out.write(map_count_string[:-3]+" <= 12\n")
+out.write(map_count_string[:-3]+" <= " + str(FAVORITE_MAPS) + "\n")
 
 # constraint, for each card, it's inclusion has to be less than or equal to the sum of the maps it's in
 for card_id in range(len(t_name_array)):
@@ -185,6 +188,18 @@ for card_id in range(len(t_name_array)):
 		if t_map_label[map_index][card_id] == 1:
 			card_inclusion_string += " + m"+str(map_index)
 	out.write(card_inclusion_string+" >= 0\n")
+
+# evaluate how much "droppage" is obtained by the benchmark
+index_card_id = t_name_array.index(BENCHMARK_CARD)
+card_count_constant = BENCHMARK_DROPPED/float(t_weight_array[index_card_id])
+
+# constraint, total stacks of cards generated has to be carried out in 6 portals
+# 6 portals of 60 slots is 360 stacks total
+feel_the_weight_string = "six_portals: "
+for card_id in range(len(t_name_array)):
+	number_of_stacks = int(card_count_constant*t_weight_array[card_id]/t_stack_array[card_id])+1
+	feel_the_weight_string += str(number_of_stacks) + " c"+str(card_id) + " + "
+out.write(feel_the_weight_string[:-3] + " <= 390\n")
 		
 # make all parameters binary and close
 out.write("Binary\n")
