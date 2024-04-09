@@ -20,4 +20,4 @@ Either adjust the price listed in `cards.json`, or add an overriding price in `o
 
 ## Maintaining the project:
 You can make a pull request, and I'll almost certainly approve it. By 3.25, I'd like to go back over the code and clean things up, but not for now.
-This scarab might also get changed.
+This scarab might also get changed. Also in the queue of updates is to offer an option to use HiGHS instead of SCIP, for wider portability. https://ergo-code.github.io/HiGHS/dev/
