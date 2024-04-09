@@ -4,7 +4,9 @@ All prices included are subject to change and personal evaluation. Do your own w
 
 ## Installation requirements:
 SCIP, published under the Apache 2.0 License:
+
 https://www.scipopt.org/index.php#download
+
 ensure that running `scip --version` from the command line correctly outputs 
 ```
 SCIP version x.x.x .......
